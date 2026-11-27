@@ -8,4 +8,5 @@ public interface IProductoService
     Producto? Obtener(int id);
     string? Crear(Producto producto);
     string? Actualizar(Producto producto);
+    bool Eliminar(int id);
 }
