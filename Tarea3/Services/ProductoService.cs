@@ -34,6 +34,15 @@ public class ProductoService : IProductoService
         }
     }
 
+    public Producto? Obtener(int id)
+    {
+        lock (bloqueo)
+        {
+            var producto = productos.Find(existente => existente.Id == id);
+            return producto is null ? null : Copiar(producto, id);
+        }
+    }
+
     public string? Crear(Producto producto)
     {
         lock (bloqueo)
@@ -45,6 +54,27 @@ public class ProductoService : IProductoService
             }
 
             productos.Add(Copiar(producto, GenerarId()));
+            return null;
+        }
+    }
+
+    public string? Actualizar(Producto producto)
+    {
+        lock (bloqueo)
+        {
+            int indice = productos.FindIndex(existente => existente.Id == producto.Id);
+            if (indice < 0)
+            {
+                return "El producto no existe.";
+            }
+
+            string? error = Validar(producto, producto.Id);
+            if (error is not null)
+            {
+                return error;
+            }
+
+            productos[indice] = Copiar(producto, producto.Id);
             return null;
         }
     }
