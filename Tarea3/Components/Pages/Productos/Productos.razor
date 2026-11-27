@@ -1,0 +1,63 @@
+@page "/productos"
+@using Tarea3.Models
+@using Tarea3.Services
+@inject IProductoService Servicio
+
+<PageTitle>Productos</PageTitle>
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="mb-0">Productos</h1>
+</div>
+
+<div class="mb-3">
+    <label for="buscar" class="form-label">Buscar por nombre</label>
+    <input id="buscar" type="search" class="form-control" @bind="busqueda" @bind:event="oninput" @bind:after="CargarProductos" />
+</div>
+
+@if (productos.Count == 0)
+{
+    <p role="status">@(string.IsNullOrWhiteSpace(busqueda) ? "No hay productos registrados." : "No se encontraron productos.")</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col" class="text-end">Precio</th>
+                    <th scope="col" class="text-end">Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var producto in productos)
+                {
+                    <tr @key="producto.Id">
+                        <td>@producto.Id</td>
+                        <th scope="row">@producto.Nombre</th>
+                        <td>@producto.Descripcion</td>
+                        <td class="text-end">@producto.Precio.ToString("N2")</td>
+                        <td class="text-end">@producto.Cantidad</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private IReadOnlyList<Producto> productos = [];
+    private string busqueda = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        CargarProductos();
+    }
+
+    private void CargarProductos()
+    {
+        productos = Servicio.Listar(busqueda);
+    }
+}
