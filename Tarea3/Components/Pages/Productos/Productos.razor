@@ -7,11 +7,18 @@
 
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <h1 class="mb-0">Productos</h1>
+    <a class="btn btn-primary" href="/productos/nuevo">Nuevo producto</a>
 </div>
+
+@if (Resultado == "creado")
+{
+    <p class="alert alert-success" role="status">Producto registrado.</p>
+}
+
 
 <div class="mb-3">
     <label for="buscar" class="form-label">Buscar por nombre</label>
-    <input id="buscar" type="search" class="form-control" @bind="busqueda" @bind:event="oninput" @bind:after="CargarProductos" />
+    <input id="buscar" type="search" disabled="@(!RendererInfo.IsInteractive)" class="form-control" @bind="busqueda" @bind:event="oninput" @bind:after="CargarProductos" />
 </div>
 
 @if (productos.Count == 0)
@@ -51,7 +58,10 @@ else
     private IReadOnlyList<Producto> productos = [];
     private string busqueda = string.Empty;
 
-    protected override void OnInitialized()
+    [SupplyParameterFromQuery]
+    private string? Resultado { get; set; }
+
+    protected override void OnParametersSet()
     {
         CargarProductos();
     }
