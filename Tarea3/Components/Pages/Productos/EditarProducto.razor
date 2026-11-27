@@ -1,0 +1,36 @@
+@page "/productos/{Id:int}/editar"
+@using Tarea3.Components.Shared
+@using Tarea3.Models
+@using Tarea3.Services
+@inject IProductoService Servicio
+
+<PageTitle>Editar producto</PageTitle>
+
+<h1>Editar producto</h1>
+
+@if (producto is null)
+{
+    <p class="alert alert-warning" role="alert">El producto no existe.</p>
+    <a class="btn btn-outline-secondary" href="/productos">Volver a productos</a>
+}
+else
+{
+    <ProductoForm @key="Id" Producto="producto" Guardar="Servicio.Actualizar" Resultado="actualizado" />
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Producto? producto;
+    private int? idCargado;
+
+    protected override void OnParametersSet()
+    {
+        if (idCargado != Id)
+        {
+            producto = Servicio.Obtener(Id);
+            idCargado = Id;
+        }
+    }
+}

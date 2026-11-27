@@ -16,6 +16,11 @@
 }
 
 
+@if (Resultado == "actualizado")
+{
+    <p class="alert alert-success" role="status">Producto actualizado.</p>
+}
+
 <div class="mb-3">
     <label for="buscar" class="form-label">Buscar por nombre</label>
     <input id="buscar" type="search" disabled="@(!RendererInfo.IsInteractive)" class="form-control" @bind="busqueda" @bind:event="oninput" @bind:after="CargarProductos" />
@@ -36,6 +41,7 @@ else
                     <th scope="col">Descripción</th>
                     <th scope="col" class="text-end">Precio</th>
                     <th scope="col" class="text-end">Cantidad</th>
+                    <th scope="col">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,6 +53,9 @@ else
                         <td>@producto.Descripcion</td>
                         <td class="text-end">@producto.Precio.ToString("N2")</td>
                         <td class="text-end">@producto.Cantidad</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary" href="@($"/productos/{producto.Id}/editar")">Editar</a>
+                        </td>
                     </tr>
                 }
             </tbody>
