@@ -79,6 +79,14 @@ public class ProductoService : IProductoService
         }
     }
 
+    public bool Eliminar(int id)
+    {
+        lock (bloqueo)
+        {
+            return productos.RemoveAll(producto => producto.Id == id) != 0;
+        }
+    }
+
     private string? Validar(Producto producto, int? idExcluido = null)
     {
         var errores = new List<ValidationResult>();
