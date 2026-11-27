@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Tarea3.Models;
 
 namespace Tarea3.Services;
@@ -31,6 +32,36 @@ public class ProductoService : IProductoService
                 .Select(producto => Copiar(producto, producto.Id))
                 .ToList();
         }
+    }
+
+    public string? Crear(Producto producto)
+    {
+        lock (bloqueo)
+        {
+            string? error = Validar(producto);
+            if (error is not null)
+            {
+                return error;
+            }
+
+            productos.Add(Copiar(producto, GenerarId()));
+            return null;
+        }
+    }
+
+    private string? Validar(Producto producto, int? idExcluido = null)
+    {
+        var errores = new List<ValidationResult>();
+        if (!Validator.TryValidateObject(producto, new ValidationContext(producto), errores, true))
+        {
+            return errores[0].ErrorMessage ?? "Revisa los datos del producto.";
+        }
+
+        bool duplicado = productos.Any(existente =>
+            existente.Id != idExcluido &&
+            existente.Nombre.Equals(producto.Nombre, StringComparison.OrdinalIgnoreCase));
+
+        return duplicado ? "Ya existe un producto con ese nombre." : null;
     }
 
     private int GenerarId()

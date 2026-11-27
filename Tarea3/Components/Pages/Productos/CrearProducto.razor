@@ -1,0 +1,14 @@
+@page "/productos/nuevo"
+@using Tarea3.Components.Shared
+@using Tarea3.Models
+@using Tarea3.Services
+@inject IProductoService Servicio
+
+<PageTitle>Nuevo producto</PageTitle>
+
+<h1>Nuevo producto</h1>
+<ProductoForm Producto="producto" Guardar="Servicio.Crear" Resultado="creado" />
+
+@code {
+    private readonly Producto producto = new();
+}
