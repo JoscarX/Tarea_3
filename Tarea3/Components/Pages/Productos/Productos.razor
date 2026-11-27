@@ -10,17 +10,26 @@
     <a class="btn btn-primary" href="/productos/nuevo">Nuevo producto</a>
 </div>
 
-@if (Resultado == "creado")
+@if (error is not null)
 {
-    <p class="alert alert-success" role="status">Producto registrado.</p>
+    <p class="alert alert-danger" role="alert">@error</p>
+}
+else if (Mensaje is not null)
+{
+    <p class="alert alert-success" role="status">@Mensaje</p>
 }
 
-
-@if (Resultado == "actualizado")
+@if (pendiente is not null)
 {
-    <p class="alert alert-success" role="status">Producto actualizado.</p>
+    <div class="alert alert-warning" role="dialog" aria-labelledby="confirmar-titulo" aria-describedby="confirmar-producto">
+        <h2 id="confirmar-titulo" class="h5">Eliminar producto</h2>
+        <p id="confirmar-producto">¿Eliminar «@pendiente.Nombre»?</p>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary" @onclick="CancelarEliminacion">Cancelar</button>
+            <button type="button" class="btn btn-danger" @onclick="ConfirmarEliminacion">Confirmar eliminación</button>
+        </div>
+    </div>
 }
-
 <div class="mb-3">
     <label for="buscar" class="form-label">Buscar por nombre</label>
     <input id="buscar" type="search" disabled="@(!RendererInfo.IsInteractive)" class="form-control" @bind="busqueda" @bind:event="oninput" @bind:after="CargarProductos" />
@@ -53,8 +62,11 @@ else
                         <td>@producto.Descripcion</td>
                         <td class="text-end">@producto.Precio.ToString("N2")</td>
                         <td class="text-end">@producto.Cantidad</td>
-                        <td>
+                        <td class="text-nowrap">
                             <a class="btn btn-sm btn-outline-primary" href="@($"/productos/{producto.Id}/editar")">Editar</a>
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-1"
+                                    disabled="@(!RendererInfo.IsInteractive || pendiente is not null)"
+                                    @onclick="() => SolicitarEliminacion(producto)">Eliminar</button>
                         </td>
                     </tr>
                 }
@@ -66,12 +78,57 @@ else
 @code {
     private IReadOnlyList<Producto> productos = [];
     private string busqueda = string.Empty;
+    private Producto? pendiente;
+    private string? mensaje;
+    private string? error;
 
     [SupplyParameterFromQuery]
     private string? Resultado { get; set; }
 
+    private string? Mensaje => mensaje ?? (Resultado switch
+    {
+        "creado" => "Producto registrado.",
+        "actualizado" => "Producto actualizado.",
+        _ => null
+    });
+
     protected override void OnParametersSet()
     {
+        CargarProductos();
+    }
+
+    private void SolicitarEliminacion(Producto producto)
+    {
+        mensaje = null;
+        error = null;
+        Resultado = null;
+        pendiente = producto;
+    }
+
+    private void CancelarEliminacion()
+    {
+        pendiente = null;
+    }
+
+    private void ConfirmarEliminacion()
+    {
+        if (pendiente is null)
+        {
+            return;
+        }
+
+        int id = pendiente.Id;
+        pendiente = null;
+
+        if (Servicio.Eliminar(id))
+        {
+            mensaje = "Producto eliminado.";
+        }
+        else
+        {
+            error = "El producto no existe.";
+        }
+
         CargarProductos();
     }
 
