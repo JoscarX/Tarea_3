@@ -1,9 +1,12 @@
 using Tarea3.Components;
+using Tarea3.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddSingleton<IProductoService, ProductoService>();
 
 var app = builder.Build();
 
