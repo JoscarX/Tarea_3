@@ -1,9 +1,13 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
-@Body
+<NavMenu />
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+<main class="container py-4">
+    @Body
+</main>
+
+<div id="blazor-error-ui" data-nosnippet role="alert">
+    No se pudo mantener la conexión.
+    <a href="." class="reload">Recargar</a>
+    <button type="button" class="dismiss btn-close" aria-label="Cerrar"></button>
 </div>
