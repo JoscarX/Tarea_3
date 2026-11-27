@@ -1,0 +1,76 @@
+@using Tarea3.Models
+
+<EditForm Model="Producto" OnValidSubmit="GuardarAsync" novalidate>
+    <DataAnnotationsValidator />
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <p class="alert alert-danger" role="alert">@error</p>
+    }
+
+    <fieldset disabled="@(!RendererInfo.IsInteractive || guardando)">
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <InputText id="nombre" class="form-control" @bind-Value="Producto.Nombre" />
+            <ValidationMessage For="() => Producto.Nombre" />
+        </div>
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <InputTextArea id="descripcion" class="form-control" rows="3" @bind-Value="Producto.Descripcion" />
+            <ValidationMessage For="() => Producto.Descripcion" />
+        </div>
+        <div class="row">
+            <div class="col-sm-6 mb-3">
+                <label for="precio" class="form-label">Precio</label>
+                <InputNumber id="precio" class="form-control" step="0.01"
+                             ParsingErrorMessage="Introduce un precio válido." @bind-Value="Producto.Precio" />
+                <ValidationMessage For="() => Producto.Precio" />
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label for="cantidad" class="form-label">Cantidad</label>
+                <InputNumber id="cantidad" class="form-control" step="1"
+                             ParsingErrorMessage="Introduce una cantidad entera." @bind-Value="Producto.Cantidad" />
+                <ValidationMessage For="() => Producto.Cantidad" />
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a class="btn btn-outline-secondary ms-2" href="/productos">Cancelar</a>
+    </fieldset>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public Producto Producto { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public Func<Producto, string?> Guardar { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager Navegacion { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string Resultado { get; set; } = string.Empty;
+
+    private bool guardando;
+    private string? error;
+
+    private async Task GuardarAsync()
+    {
+        if (guardando)
+        {
+            return;
+        }
+
+        guardando = true;
+        await Task.Yield();
+
+        error = Guardar(Producto);
+        if (error is null)
+        {
+            Navegacion.NavigateTo($"/productos?resultado={Resultado}", replace: true);
+            return;
+        }
+
+        guardando = false;
+    }
+}
